@@ -11,6 +11,7 @@ For what the project is and how to run it, see the [root README](../README.md).
 |---|---|---|
 | 001 | [The world and the renderer](001-world-and-renderer.md) | grid, tiles, generation, macroquad window, egui panel |
 | 002 | [Agents, brains and the tick loop](002-agents-brains-tick-loop.md) | `Agent`, `Action`, the `Brain` trait, the three-phase tick, fixed timestep |
+| 003 | [What the agent actually knows](003-observation.md) | `Observation`, the 9×9 window, relative coordinates, the text a model reads |
 
 ## Conventions
 

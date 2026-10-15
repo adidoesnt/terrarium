@@ -1,5 +1,6 @@
 mod agent;
 mod brain;
+mod observation;
 mod render;
 mod sim;
 mod world;
@@ -14,7 +15,7 @@ use world::Tile;
 
 use crate::{render::draw_agents, sim::Sim};
 
-const PANEL_WIDTH: f32 = 260.0;
+const PANEL_WIDTH: f32 = 340.0;
 const GRID_W: i32 = 32;
 const GRID_H: i32 = 22;
 const AGENT_COUNT: usize = 4;
@@ -38,6 +39,9 @@ async fn main() {
     let mut ticks_per_second: f32 = 4.0;
     let mut accumulator: f32 = 0.0;
 
+    // Which agents observations we are viewing.
+    let mut selected: usize = 0;
+
     loop {
         // Simulation clock: decouple sim rate from frame rate.
         if running {
@@ -55,7 +59,7 @@ async fn main() {
 
         let layout = Layout::fit(&sim.world, screen_width() - PANEL_WIDTH, screen_height());
         draw_world(&sim.world, &layout);
-        draw_agents(&sim.agents, &layout);
+        draw_agents(&sim.agents, selected, &layout);
 
         egui_macroquad::ui(|ctx| {
             SidePanel::right("inspector")
@@ -92,10 +96,30 @@ async fn main() {
                     }
                     ui.separator();
 
+                    ui.horizontal(|ui| {
+                        for a in &sim.agents {
+                            let label = if a.alive {
+                                a.name.clone()
+                            } else {
+                                format!("{} †", a.name)
+                            };
+                            ui.selectable_value(&mut selected, a.id, label);
+                        }
+                    });
+                    ui.collapsing("what they see", |ui| {
+                        if sim.agents[selected].alive {
+                            ui.monospace(sim.observe(selected).to_string());
+                        } else {
+                            ui.weak("dead — no observation");
+                        }
+                    });
+                    ui.separator();
+
                     if ui.button("regenerate").clicked() {
                         seed += 1;
                         sim = Sim::new(GRID_W, GRID_H, seed, AGENT_COUNT);
                         running = false;
+                        selected = 0;
                     }
                 });
         });

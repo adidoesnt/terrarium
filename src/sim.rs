@@ -1,5 +1,6 @@
 use crate::agent::{Action, Agent, MAX_ENERGY};
 use crate::brain::{Brain, SmoothBrain};
+use crate::observation::Observation;
 use crate::world::{Pos, Tile, World};
 
 const ENERGY_PER_BERRY: i32 = 25;
@@ -32,6 +33,10 @@ impl Sim {
         }
     }
 
+    pub fn observe(&self, id: usize) -> Observation {
+        Observation::new(&self.world, &self.agents[id], &self.agents)
+    }
+
     pub fn tick(&mut self) {
         // Phase 1: everyone decides, nobody moves
         let mut decisions: Vec<(usize, Action)> = Vec::new();
@@ -39,7 +44,8 @@ impl Sim {
             if !agent.alive {
                 continue;
             }
-            let action = self.brains[agent.id].decide(&self.world, agent);
+            let obs = self.observe(agent.id);
+            let action = self.brains[agent.id].decide(&obs);
             decisions.push((agent.id, action));
         }
 

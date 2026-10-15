@@ -13,10 +13,11 @@ const COLOR_EMPTY: Color = Color::new(0.11, 0.13, 0.11, 1.0);
 const COLOR_WALL: Color = Color::new(0.28, 0.26, 0.24, 1.0);
 const COLOR_BERRY: Color = Color::new(0.13, 0.18, 0.13, 1.0);
 const COLOR_BERRY_DOT: Color = Color::new(0.85, 0.25, 0.40, 1.0);
-const COLOR_AGENT: Color = Color::new(0.45, 0.78, 0.95, 1.0);
-const COLOR_AGENT_DEAD: Color = Color::new(0.40, 0.38, 0.42, 1.0);
 const COLOR_ENERGY: Color = Color::new(0.35, 0.85, 0.45, 1.0);
 const COLOR_ENERGY_BG: Color = Color::new(0.0, 0.0, 0.0, 0.55);
+const COLOR_AGENT: Color = Color::new(0.98, 0.78, 0.25, 1.0);
+pub const COLOR_AGENT_SELECTED: Color = Color::new(0.45, 0.78, 0.95, 1.0);
+const COLOR_AGENT_DEAD: Color = Color::new(0.40, 0.38, 0.42, 1.0);
 
 #[derive(Clone, Copy, Debug)]
 pub struct Layout {
@@ -77,12 +78,22 @@ pub fn draw_world(world: &World, layout: &Layout) {
     }
 }
 
-pub fn draw_agents(agents: &[Agent], layout: &Layout) {
+pub fn draw_agents(agents: &[Agent], selected: usize, layout: &Layout) {
     for agent in agents {
         let (rx, ry, w, h) = layout.tile_rect(agent.pos);
 
-        let color = if agent.alive { COLOR_AGENT } else { COLOR_AGENT_DEAD };
-        draw_circle(rx + w / 2.0, ry + h / 2.0, w * 0.34, color);
+        let color = match (agent.alive, agent.id == selected) {
+            (false, _) => COLOR_AGENT_DEAD,
+            (true, true) => COLOR_AGENT_SELECTED,
+            (true, false) => COLOR_AGENT,
+        };
+
+        let radius = if agent.id == selected {
+            w * 0.40
+        } else {
+            w * 0.34
+        };
+        draw_circle(rx + w / 2.0, ry + h / 2.0, w * radius, color);
 
         if agent.alive {
             // Energy bar across the bottom of the cell.

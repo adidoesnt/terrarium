@@ -20,7 +20,7 @@ goes in, the only thing that can be broken is the Ollama call.
 |---|---|---|
 | 1 | World you can see: grid, tiles, window, panel | done |
 | 2 | Agents, actions, `Brain` trait, tick loop | done |
-| 3 | `Observation` — the limited, local view an agent gets | next |
+| 3 | `Observation` — the limited, local view an agent gets | done |
 | 4 | `LlmBrain`: Ollama API on a background thread | |
 | 5 | Memory, speech between agents, event log, inspector | |
 
@@ -87,6 +87,9 @@ that's invisible in a diff six months later. A few highlights:
   anyway — it was pointing at a real modelling bug.
 - **World generation throws darts, it doesn't place items.** 58 berry attempts yields
   ~48 berries, because darts collide and some land on walls.
+- **Agents are told relative directions, not coordinates.** "3 west, 2 south" maps
+  straight onto an action; "there is a berry at (14, 11)" makes the model do arithmetic
+  it is unreliable at. Move the arithmetic into the reliable component.
 - **Grid size is bounded by token budget, not by screen.** 32×22 is ~700 characters,
   roughly 200 tokens per observation. A 100×100 world would be ~10k tokens per agent
   per tick.
