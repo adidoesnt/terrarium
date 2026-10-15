@@ -1,4 +1,5 @@
 mod agent;
+mod brain;
 mod render;
 mod world;
 
