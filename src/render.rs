@@ -4,6 +4,7 @@ use macroquad::{
     shapes::{draw_circle, draw_rectangle},
 };
 
+use crate::agent::{Agent, MAX_ENERGY};
 use crate::world::{Pos, Tile, World};
 
 // --- palette ---
@@ -12,6 +13,10 @@ const COLOR_EMPTY: Color = Color::new(0.11, 0.13, 0.11, 1.0);
 const COLOR_WALL: Color = Color::new(0.28, 0.26, 0.24, 1.0);
 const COLOR_BERRY: Color = Color::new(0.13, 0.18, 0.13, 1.0);
 const COLOR_BERRY_DOT: Color = Color::new(0.85, 0.25, 0.40, 1.0);
+const COLOR_AGENT: Color = Color::new(0.45, 0.78, 0.95, 1.0);
+const COLOR_AGENT_DEAD: Color = Color::new(0.40, 0.38, 0.42, 1.0);
+const COLOR_ENERGY: Color = Color::new(0.35, 0.85, 0.45, 1.0);
+const COLOR_ENERGY_BG: Color = Color::new(0.0, 0.0, 0.0, 0.55);
 
 #[derive(Clone, Copy, Debug)]
 pub struct Layout {
@@ -68,6 +73,24 @@ pub fn draw_world(world: &World, layout: &Layout) {
             if tile == Tile::Berry {
                 draw_circle(rx + w / 2.0, ry + h / 2.0, w * 0.18, COLOR_BERRY_DOT);
             }
+        }
+    }
+}
+
+pub fn draw_agents(agents: &[Agent], layout: &Layout) {
+    for agent in agents {
+        let (rx, ry, w, h) = layout.tile_rect(agent.pos);
+
+        let color = if agent.alive { COLOR_AGENT } else { COLOR_AGENT_DEAD };
+        draw_circle(rx + w / 2.0, ry + h / 2.0, w * 0.34, color);
+
+        if agent.alive {
+            // Energy bar across the bottom of the cell.
+            let frac = (agent.energy as f32 / MAX_ENERGY as f32).clamp(0.0, 1.0);
+            let bar_h = (h * 0.12).max(2.0);
+            let bar_y = ry + h - bar_h - 1.0;
+            draw_rectangle(rx + 1.0, bar_y, w - 2.0, bar_h, COLOR_ENERGY_BG);
+            draw_rectangle(rx + 1.0, bar_y, (w - 2.0) * frac, bar_h, COLOR_ENERGY);
         }
     }
 }

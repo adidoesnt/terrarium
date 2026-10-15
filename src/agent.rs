@@ -1,5 +1,7 @@
 use crate::world::Pos;
 
+pub const MAX_ENERGY: i32 = 150;
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Direction {
     North,

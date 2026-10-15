@@ -1,10 +1,9 @@
-use crate::agent::{Action, Agent};
+use crate::agent::{Action, Agent, MAX_ENERGY};
 use crate::brain::{Brain, SmoothBrain};
 use crate::world::{Pos, Tile, World};
 
 const ENERGY_PER_BERRY: i32 = 25;
 const ENERGY_PER_TICK: i32 = 1;
-const MAX_ENERGY: i32 = 150;
 
 pub struct Sim {
     pub world: World,
