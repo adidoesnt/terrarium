@@ -1,9 +1,7 @@
 # Terrarium
 
 A small 2D grid world where LLM agents live, forage and talk, and we watch what they do.
-
 A personal side project for learning Rust and having fun with agents.
-Clarity over cleverness, throughout.
 
 ![Terrarium](docs/screenshot.png)
 
@@ -16,13 +14,13 @@ Nothing in it reasons yet. That's deliberate ordering: the whole simulation is b
 and debugged against a brain that's instant and free, so when the first Ollama call
 goes in, the only thing that can be broken is the Ollama call.
 
-| Chunk | What | Status |
-|---|---|---|
-| 1 | World you can see: grid, tiles, window, panel | done |
-| 2 | Agents, actions, `Brain` trait, tick loop | done |
-| 3 | `Observation` — the limited, local view an agent gets | done |
-| 4 | `LlmBrain`: Ollama API on a background thread | next |
-| 5 | Memory, speech between agents, event log, inspector | |
+| Chunk | What                                                  | Status |
+| ----- | ----------------------------------------------------- | ------ |
+| 1     | World you can see: grid, tiles, window, panel         | done   |
+| 2     | Agents, actions, `Brain` trait, tick loop             | done   |
+| 3     | `Observation` — the limited, local view an agent gets | done   |
+| 4     | `LlmBrain`: Ollama API on a background thread         | next   |
+| 5     | Memory, speech between agents, event log, inspector   |        |
 
 ## Run it
 
@@ -33,12 +31,12 @@ cargo run
 First build takes a few minutes (~200 crates, mostly macroquad's platform layer and
 egui's font rasteriser). After that it's a couple of seconds.
 
-| Control | Does |
-|---|---|
-| `run` / `pause` | start and stop the clock |
-| `step` | advance exactly one tick — how you debug a single decision |
-| `ticks/s` | 1 is studyable, 30 is a blur |
-| `regenerate` | new seed, new map, fresh agents |
+| Control         | Does                                                       |
+| --------------- | ---------------------------------------------------------- |
+| `run` / `pause` | start and stop the clock                                   |
+| `step`          | advance exactly one tick — how you debug a single decision |
+| `ticks/s`       | 1 is studyable, 30 is a blur                               |
+| `regenerate`    | new seed, new map, fresh agents                            |
 
 ## How it works
 
@@ -63,7 +61,7 @@ pub trait Brain {
 }
 ```
 
-A brain receives a shared `&World` — so it *physically cannot* change anything — and
+A brain receives a shared `&World` — so it _physically cannot_ change anything — and
 returns an `Action` describing what it would like to do. The simulation decides whether
 that actually happens. An agent can want to walk into a wall; a hallucinating model
 can't teleport.
@@ -76,7 +74,7 @@ unfalsifiable, since it might just have spawned next to a berry.
 
 ## Design notes
 
-The [journal](journal/) records what was built and *why* — the why being the part
+The [journal](journal/) records what was built and _why_ — the why being the part
 that's invisible in a diff six months later. A few highlights:
 
 - **`Pos` holds `i32`, not `usize`**, because an agent at `x = 0` moving west computes
