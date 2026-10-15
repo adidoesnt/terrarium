@@ -1,6 +1,7 @@
 # Terrarium
 
 A small 2D grid world where LLM agents live, forage and talk, and we watch what they do.
+
 A personal side project for learning Rust and having fun with agents.
 
 ![Terrarium](docs/screenshot.png)
