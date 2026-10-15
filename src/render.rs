@@ -93,7 +93,7 @@ pub fn draw_agents(agents: &[Agent], selected: usize, layout: &Layout) {
         } else {
             w * 0.34
         };
-        draw_circle(rx + w / 2.0, ry + h / 2.0, w * radius, color);
+        draw_circle(rx + w / 2.0, ry + h / 2.0, radius, color);
 
         if agent.alive {
             // Energy bar across the bottom of the cell.
