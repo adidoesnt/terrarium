@@ -11,6 +11,11 @@ impl Pos {
     pub fn new(x: i32, y: i32) -> Self {
         Pos { x, y }
     }
+
+    pub fn step(self, dir: crate::agent::Direction) -> Pos {
+        let (dx, dy) = dir.delta();
+        Pos::new(self.x + dx, self.y + dy)
+    }
 }
 
 /// Occupant of a particular cell.
@@ -26,7 +31,7 @@ pub struct World {
     pub width: i32,
     pub height: i32,
     pub tick: u64,
-    tiles: Vec<Tile>
+    tiles: Vec<Tile>,
 }
 
 impl World {
