@@ -1,6 +1,7 @@
 mod agent;
 mod brain;
 mod render;
+mod sim;
 mod world;
 
 use egui_macroquad::egui::SidePanel;
