@@ -21,7 +21,7 @@ goes in, the only thing that can be broken is the Ollama call.
 | 1 | World you can see: grid, tiles, window, panel | done |
 | 2 | Agents, actions, `Brain` trait, tick loop | done |
 | 3 | `Observation` — the limited, local view an agent gets | done |
-| 4 | `LlmBrain`: Ollama API on a background thread | |
+| 4 | `LlmBrain`: Ollama API on a background thread | next |
 | 5 | Memory, speech between agents, event log, inspector | |
 
 ## Run it

@@ -178,7 +178,7 @@ standing on a berry — including at energy 149, where the cap throws away 24 of
 A brain that holds off until energy drops below 125 captures the full value from every
 berry it finds. Same berries, more ticks, purely from timing.
 
-That's a concrete, falsifiable hypothesis for `WrinkledBrain` to be tested against,
+That's a concrete, falsifiable hypothesis for `LlmBrain` to be tested against,
 rather than a vague "the LLM should do better". It also happens to be the kind of
 restraint an LLM plausibly works out from the rules, which makes it a genuinely
 interesting first thing to watch for.
