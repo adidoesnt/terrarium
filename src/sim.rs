@@ -17,7 +17,7 @@ impl Sim {
         let mut agents = Vec::new();
         let mut brains: Vec<Box<dyn Brain>> = Vec::new();
 
-        // Randomise later.
+        // TODO: Randomise later.
         let names = ["Ada", "Bo", "Cy", "Dot", "Eli"];
         for id in 0..agent_count {
             let pos = find_empty_spot(&world, &agents);

@@ -35,6 +35,8 @@ impl Direction {
 pub enum Action {
     Move(Direction),
     Eat,
+    /// Do nothing. Also the fallback when a brain fails to produce a
+    /// valid action — see LlmBrain in chunk 4.
     Wait,
 }
 
