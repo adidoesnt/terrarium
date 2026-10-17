@@ -1,7 +1,6 @@
 use std::{
     sync::mpsc::{Receiver, Sender, TryRecvError, channel},
     thread,
-    time::Duration,
 };
 
 use macroquad::rand::gen_range;
@@ -97,13 +96,4 @@ impl LlmBrain {
             thinking: false,
         }
     }
-}
-
-/// Stand-in for the model: slow, and deterministic so runs stay reproducible.
-fn think(obs: &Observation) -> Action {
-    thread::sleep(Duration::from_secs(1));
-    if obs.standing_on == Tile::Berry {
-        return Action::Eat;
-    }
-    Action::Move(Direction::ALL[(obs.tick % 4) as usize])
 }
