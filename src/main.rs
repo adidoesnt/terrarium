@@ -5,7 +5,7 @@ mod render;
 mod sim;
 mod world;
 
-use egui_macroquad::egui::{SidePanel, Slider};
+use egui_macroquad::egui::{Button, SidePanel, Slider};
 use macroquad::{
     time::get_frame_time,
     window::{Conf, clear_background, next_frame, screen_height, screen_width},
@@ -36,6 +36,7 @@ async fn main() {
     let mut sim = Sim::new(GRID_W, GRID_H, seed, AGENT_COUNT);
 
     let mut running = false;
+    let mut step_requested = false;
     let mut ticks_per_second: f32 = 4.0;
     let mut accumulator: f32 = 0.0;
 
@@ -48,13 +49,21 @@ async fn main() {
             let interval = 1.0 / ticks_per_second;
             accumulator += get_frame_time();
             while accumulator >= interval {
-                let _ = sim.try_tick();
+                if !sim.try_tick() {
+                    // Brains still thinking. Hold one tick ready, but don't bank the wait
+                    // Avoids a burst of ticks when the LlmBrains decide.
+                    accumulator = interval;
+                    break;
+                }
                 accumulator -= interval;
             }
         } else {
             accumulator = 0.0;
         }
 
+        if step_requested && sim.try_tick() {
+            step_requested = false;
+        }
         clear_background(COLOR_BACKGROUND);
 
         let layout = Layout::fit(&sim.world, screen_width() - PANEL_WIDTH, screen_height());
@@ -72,8 +81,8 @@ async fn main() {
                         if ui.button(if running { "pause" } else { "run" }).clicked() {
                             running = !running;
                         }
-                        if ui.button("step").clicked() {
-                            let _ = sim.try_tick();
+                        if ui.add_enabled(!running, Button::new("step")).clicked() {
+                            step_requested = true;
                         }
                     });
                     ui.add(Slider::new(&mut ticks_per_second, 1.0..=30.0).text("ticks/s"));
@@ -119,6 +128,7 @@ async fn main() {
                         seed += 1;
                         sim = Sim::new(GRID_W, GRID_H, seed, AGENT_COUNT);
                         running = false;
+                        step_requested = false;
                         selected = 0;
                     }
                 });
