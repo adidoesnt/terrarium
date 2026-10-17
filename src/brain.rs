@@ -9,6 +9,7 @@ use macroquad::rand::gen_range;
 use crate::{
     agent::{Action, Direction},
     observation::Observation,
+    ollama,
     world::Tile,
 };
 
@@ -65,14 +66,25 @@ impl Brain for LlmBrain {
 }
 
 impl LlmBrain {
-    pub fn new() -> Self {
+    pub fn new(model: &str) -> Self {
         let (to_worker, worker_rx) = channel::<Observation>();
         let (worker_tx, from_worker) = channel::<Action>();
+        let client = ollama::Client::new(model);
 
         thread::spawn(move || {
             // Ends when every Sender<Observation> is dropped.
             for obs in worker_rx {
-                let action = think(&obs);
+                let action = match client.decide(&obs) {
+                    Ok(reply) => {
+                        eprintln!("[t{}] {:?}: {}", obs.tick, reply.action, reply.thought);
+                        reply.action.into()
+                    }
+                    Err(e) => {
+                        // The fallback planned in 002: a broken call must look broken.
+                        eprintln!("[t{}] ollama error, waiting: {e}", obs.tick);
+                        Action::Wait
+                    }
+                };
                 if worker_tx.send(action).is_err() {
                     break; // brain dropped mid-thought; nobody to answer
                 }
