@@ -11,8 +11,8 @@ an API call.
 - `Brain::decide(&mut self, obs: &Observation)` — the `&World` parameter is gone.
 - `Sim::observe(id)`.
 - Panel: a row of agent buttons (`selectable_value`) and a collapsing block showing
-  the selected agent's observation in monospace. The selected agent is drawn amber
-  instead of blue.
+  the selected agent's observation in monospace. The selected agent is drawn blue
+  instead of amber.
 
 This supersedes the open question at the end of [002](002-agents-brains-tick-loop.md):
 `decide` no longer receives the entire `World`.

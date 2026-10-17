@@ -48,7 +48,7 @@ async fn main() {
             let interval = 1.0 / ticks_per_second;
             accumulator += get_frame_time();
             while accumulator >= interval {
-                sim.tick();
+                let _ = sim.try_tick();
                 accumulator -= interval;
             }
         } else {
@@ -73,7 +73,7 @@ async fn main() {
                             running = !running;
                         }
                         if ui.button("step").clicked() {
-                            sim.tick();
+                            let _ = sim.try_tick();
                         }
                     });
                     ui.add(Slider::new(&mut ticks_per_second, 1.0..=30.0).text("ticks/s"));

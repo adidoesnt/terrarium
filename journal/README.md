@@ -19,28 +19,38 @@ Entries are numbered in build order and never rewritten — if a later chunk ove
 an earlier decision, the new entry says so and links back. The point is to keep the
 reasoning as it was *at the time*, including the parts that turned out to be wrong.
 
-Each entry ends with **open questions** for the next chunk. Entry 002's are the live
-ones: `Brain::decide` still receives the entire `World`, which is wrong for an LLM and
-is what chunk 3 fixes.
+Factual errors — a misread number, a wrong description of the code — are a different
+thing, and get fixed in place in the original entry.
+
+Each entry ends with **open questions** for the next chunk. Entry 003's are the live
+ones: LLM calls must stay off the render thread, and the clock needs a catch-up cap.
 
 ## Baseline to beat
 
 `SmoothBrain`, seed 1, 4 agents:
 
-| Measure | Ticks |
+| Agent | Died at tick |
 |---|---|
-| First death | 100 |
-| Total wipeout | 450 |
+| Ada | 100 |
+| Bo | 300 |
+| Dot | 375 |
+| Cy | 395 (wipeout) |
+| **Total** | **1170 agent-ticks** |
+
+Total agent-ticks is the headline number: it counts every agent, not just the luckiest
+and unluckiest. Across 4 agents the theoretical ceiling is 400 + (48 × 25) = **1600**
+agent-ticks if every berry were eaten at full value, so a thinking brain has ~430 of
+headroom.
 
 **First death at exactly 100 means that agent never ate a single berry** — energy
 starts at 100 and drains 1/tick, so 100 is the no-food floor. One of four random
 walkers failed to stumble onto any of 48 berries in 100 moves.
 
-The last survivor reached 450, i.e. ~350 ticks of surplus, i.e. roughly **14 berries**
-at +25 each. Across 4 agents the theoretical ceiling is 400 + (48 × 25) = 1600
-agent-ticks if every berry were eaten at full value.
+The 770 agent-ticks above that floor is at least **31 berries** at +25 each — a lower
+bound, since berries eaten near `MAX_ENERGY` lose part of their value to the cap.
 
-See [002](002-agents-brains-tick-loop.md#baseline-to-beat) for what this implies about
-the headroom available to a thinking brain.
+The run is fully deterministic: every random draw comes from one generator seeded by
+`srand(seed)`, so these numbers are exact, not typical. They were verified identical
+at `fe6bd35` (chunk 2), `b39fc59` (chunk 3) and after the `try_tick` refactor (chunk 4).
 
 `SmoothBrain` isn't scaffolding to delete once the LLM works; it's the control group.

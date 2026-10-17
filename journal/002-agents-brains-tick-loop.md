@@ -155,15 +155,18 @@ and gains nothing, so it would only weaken the baseline we want to measure again
 
 ## Baseline to beat
 
-`SmoothBrain`, seed 1, 4 agents: **first death at tick 100, wipeout at tick 450.**
+`SmoothBrain`, seed 1, 4 agents: deaths at ticks **100, 300, 375 and 395** (wipeout),
+for a total of **1170 agent-ticks**.
 
 Reading those numbers:
 
 - Energy starts at 100 and drains 1/tick, so **100 is the no-food floor**. First death
   landing exactly there means that agent ate *nothing* — it failed to stumble onto any
   of 48 berries in 100 random moves. That's the cost of having no strategy at all.
-- The last survivor's 350 ticks of surplus is ~14 berries at +25 each.
-- Ceiling if all 48 berries were eaten at full value: 400 + 1200 = **1600 agent-ticks**.
+- The 770 agent-ticks above that floor is at least ~31 berries at +25 each — a lower
+  bound, since berries eaten near the cap lose part of their value.
+- Ceiling if all 48 berries were eaten at full value: 400 + 1200 = **1600 agent-ticks**,
+  so a thinking brain has ~430 agent-ticks of headroom.
 
 ### Two findings that matter for chunk 4
 

@@ -10,6 +10,9 @@ pub struct Sim {
     pub world: World,
     pub agents: Vec<Agent>,
     brains: Vec<Box<dyn Brain>>,
+    /// Phase 1 (decision making) progress, kept across frames
+    /// `Some` returned once the agent's brain has decided
+    pending: Vec<Option<Action>>,
 }
 
 impl Sim {
@@ -25,11 +28,13 @@ impl Sim {
             agents.push(Agent::new(id, names[id % names.len()], pos));
             brains.push(Box::new(SmoothBrain));
         }
+        let pending = vec![None; agent_count];
 
         Sim {
             world,
             agents,
             brains,
+            pending,
         }
     }
 
@@ -37,21 +42,31 @@ impl Sim {
         Observation::new(&self.world, &self.agents[id], &self.agents)
     }
 
-    pub fn tick(&mut self) {
-        // Phase 1: everyone decides, nobody moves
-        let mut decisions: Vec<(usize, Action)> = Vec::new();
+    #[must_use]
+    pub fn try_tick(&mut self) -> bool {
+        // Phase 1: ask anyone who hasn't answered yet. The world stays frozen
+        // until everyone has, so a slow brain holds up the turn instead of losing it.
         for agent in &self.agents {
-            if !agent.alive {
+            if !agent.alive || self.pending[agent.id].is_some() {
                 continue;
             }
             let obs = self.observe(agent.id);
-            let action = self.brains[agent.id].decide(&obs);
-            decisions.push((agent.id, action));
+            self.pending[agent.id] = self.brains[agent.id].decide(&obs);
         }
 
-        // Phase 2: apply every decision
-        for (id, action) in decisions {
-            self.apply(id, action);
+        let ready = self
+            .agents
+            .iter()
+            .all(|a| !a.alive || self.pending[a.id].is_some());
+        if !ready {
+            return false;
+        }
+
+        // Phase 2: apply every decision, emptying the slot for next turn
+        for id in 0..self.agents.len() {
+            if let Some(action) = self.pending[id].take() {
+                self.apply(id, action);
+            }
         }
 
         // Phase 3: metabolism
@@ -67,6 +82,7 @@ impl Sim {
         }
 
         self.world.tick += 1;
+        true
     }
 
     fn apply(&mut self, id: usize, action: Action) {
