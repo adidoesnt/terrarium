@@ -48,10 +48,11 @@ impl Sim {
         Observation::new(&self.world, &self.agents[id], &self.agents)
     }
 
-    #[must_use]
-    pub fn try_tick(&mut self) -> bool {
-        // Phase 1: ask anyone who hasn't answered yet. The world stays frozen
-        // until everyone has, so a slow brain holds up the turn instead of losing it.
+    /// Phase 1 on its own: ask anyone who hasn't answered yet. The world stays frozen
+    /// until everyone has, so a slow brain holds up the turn instead of losing it.
+    /// Safe to call every frame (each brain is asked once per turn), which lets
+    /// brains think while the clock waits. Returns whether everyone has answered.
+    pub fn ask_brains(&mut self) -> bool {
         for agent in &self.agents {
             if !agent.alive || self.pending[agent.id].is_some() {
                 continue;
@@ -60,11 +61,15 @@ impl Sim {
             self.pending[agent.id] = self.brains[agent.id].decide(&obs);
         }
 
-        let ready = self
-            .agents
+        self.agents
             .iter()
-            .all(|a| !a.alive || self.pending[a.id].is_some());
-        if !ready {
+            .all(|a| !a.alive || self.pending[a.id].is_some())
+    }
+
+    #[must_use]
+    pub fn try_tick(&mut self) -> bool {
+        // Phase 1: everyone decides, nobody moves.
+        if !self.ask_brains() {
             return false;
         }
 

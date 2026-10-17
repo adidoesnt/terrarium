@@ -7,7 +7,7 @@ mod world;
 
 use egui_macroquad::egui::{Button, SidePanel, Slider};
 use macroquad::{
-    time::get_frame_time,
+    time::{get_frame_time, get_time},
     window::{Conf, clear_background, next_frame, screen_height, screen_width},
 };
 use render::{COLOR_BACKGROUND, Layout, draw_world};
@@ -37,13 +37,22 @@ async fn main() {
 
     let mut running = false;
     let mut step_requested = false;
+
     let mut ticks_per_second: f32 = 4.0;
+    // Measured tick rate, refreshed about once a second.
+    let mut actual_rate: f64 = 0.0;
+    let mut rate_since = get_time();
+    let mut rate_from_tick = sim.world.tick;
+
     let mut accumulator: f32 = 0.0;
 
     // Which agents observations we are viewing.
     let mut selected: usize = 0;
 
     loop {
+        // Let brains think between ticks, not only when one is due.
+        let _ = sim.ask_brains();
+
         // Simulation clock: decouple sim rate from frame rate.
         if running {
             let interval = 1.0 / ticks_per_second;
@@ -64,6 +73,15 @@ async fn main() {
         if step_requested && sim.try_tick() {
             step_requested = false;
         }
+
+        // Tick-rate measurement: after every tick source has had its turn this frame.
+        let now = get_time();
+        if now - rate_since >= 1.0 {
+            actual_rate = (sim.world.tick - rate_from_tick) as f64 / (now - rate_since);
+            rate_since = now;
+            rate_from_tick = sim.world.tick;
+        }
+
         clear_background(COLOR_BACKGROUND);
 
         let layout = Layout::fit(&sim.world, screen_width() - PANEL_WIDTH, screen_height());
@@ -85,7 +103,8 @@ async fn main() {
                             step_requested = true;
                         }
                     });
-                    ui.add(Slider::new(&mut ticks_per_second, 1.0..=30.0).text("ticks/s"));
+                    ui.add(Slider::new(&mut ticks_per_second, 1.0..=30.0).text("max ticks/s"));
+                    ui.label(format!("actual: {actual_rate:.1} ticks/s"));
                     ui.separator();
 
                     ui.label(format!("tick:    {}", sim.world.tick));
@@ -129,6 +148,8 @@ async fn main() {
                         sim = Sim::new(GRID_W, GRID_H, seed, AGENT_COUNT);
                         running = false;
                         step_requested = false;
+                        rate_from_tick = 0;
+                        rate_since = get_time();
                         selected = 0;
                     }
                 });
