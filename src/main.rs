@@ -1,6 +1,7 @@
 mod agent;
 mod brain;
 mod observation;
+mod ollama;
 mod render;
 mod sim;
 mod world;

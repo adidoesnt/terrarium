@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 egui-macroquad = "0.17.3"
 macroquad = "0.4.16"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.154", features = ["preserve_order"] }
+ureq = { version = "3.4.2", features = ["json"] }
