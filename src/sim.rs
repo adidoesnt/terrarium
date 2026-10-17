@@ -5,6 +5,7 @@ use crate::world::{Pos, Tile, World};
 
 const ENERGY_PER_BERRY: i32 = 25;
 const ENERGY_PER_TICK: i32 = 1;
+const MODEL: &str = "llama3.1:8b";
 
 pub struct Sim {
     pub world: World,
@@ -28,7 +29,7 @@ impl Sim {
             agents.push(Agent::new(id, names[id % names.len()], pos));
 
             let brain: Box<dyn Brain> = if id == 0 {
-                Box::new(LlmBrain::new())
+                Box::new(LlmBrain::new(MODEL))
             } else {
                 Box::new(SmoothBrain)
             };
