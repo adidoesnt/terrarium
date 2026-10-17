@@ -1,5 +1,5 @@
 use crate::agent::{Action, Agent, MAX_ENERGY};
-use crate::brain::{Brain, SmoothBrain};
+use crate::brain::{Brain, LlmBrain, SmoothBrain};
 use crate::observation::Observation;
 use crate::world::{Pos, Tile, World};
 
@@ -26,7 +26,13 @@ impl Sim {
         for id in 0..agent_count {
             let pos = find_empty_spot(&world, &agents);
             agents.push(Agent::new(id, names[id % names.len()], pos));
-            brains.push(Box::new(SmoothBrain));
+
+            let brain: Box<dyn Brain> = if id == 0 {
+                Box::new(LlmBrain::new())
+            } else {
+                Box::new(SmoothBrain)
+            };
+            brains.push(brain);
         }
         let pending = vec![None; agent_count];
 
