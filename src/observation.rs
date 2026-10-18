@@ -1,7 +1,7 @@
 use std::fmt;
 
 use crate::{
-    agent::{Agent, MAX_ENERGY},
+    agent::{Agent, Direction, MAX_ENERGY},
     world::{Pos, Tile, World},
 };
 
@@ -109,6 +109,22 @@ impl fmt::Display for Observation {
         )?;
         writeln!(f)?;
 
+        // The four neighbours in words. A model can't reliably read "the cell above @"
+        // off the map (it means aligning columns across lines), so state it outright.
+        let centre = self.view_side / 2;
+        writeln!(f, "Next to you:")?;
+        for dir in Direction::ALL {
+            let (dx, dy) = dir.delta();
+            let index = ((centre + dy) * self.view_side + (centre + dx)) as usize;
+            writeln!(
+                f,
+                "  - {}: {}",
+                direction_word(dir),
+                describe_cell(self.view[index])
+            )?;
+        }
+        writeln!(f)?;
+
         if self.berries.is_empty() {
             writeln!(f, "No berries in sight.")?;
         } else {
@@ -126,6 +142,28 @@ impl fmt::Display for Observation {
         }
 
         Ok(())
+    }
+}
+
+/// The word the model uses for a direction, matching the action names in its schema.
+fn direction_word(dir: Direction) -> &'static str {
+    match dir {
+        Direction::North => "north",
+        Direction::South => "south",
+        Direction::East => "east",
+        Direction::West => "west",
+    }
+}
+
+/// One neighbouring view cell, in words. Says "blocked" wherever a move would fail.
+fn describe_cell(ch: char) -> &'static str {
+    match ch {
+        '.' => "empty",
+        'b' => "a berry",
+        '#' => "wall (blocked)",
+        ' ' => "edge of the world (blocked)",
+        // Everything else in the view is an agent's initial (A-Z).
+        _ => "another agent (blocked)",
     }
 }
 
